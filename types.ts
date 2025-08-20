@@ -1,8 +1,9 @@
 
 export interface Admin {
   id?: number;
-  username: string;
-  passwordHash: string;
+  username?: string; // Only for 'password' auth
+  passwordHash?: string; // Hash for password or PIN
+  authMethod: 'password' | 'pin';
   name: string;
   blockNumber: string;
   signature: string; // base64 data URL

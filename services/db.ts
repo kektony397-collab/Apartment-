@@ -16,7 +16,7 @@ async function connectToDb() {
     db = await idb.openDB(DB_NAME, DB_VERSION, {
         upgrade(db: any) {
             if (!db.objectStoreNames.contains(ADMIN_STORE)) {
-                db.createObjectStore(ADMIN_STORE, { keyPath: 'id', autoIncrement: true });
+                db.createObjectStore(ADMIN_STORE, { keyPath: 'id' });
             }
             if (!db.objectStoreNames.contains(RECEIPT_STORE)) {
                 const receiptStore = db.createObjectStore(RECEIPT_STORE, { keyPath: 'id', autoIncrement: true });
@@ -37,29 +37,75 @@ async function sha256(message: string): Promise<string> {
 }
 
 export async function initDB() {
-    const db = await connectToDb();
-    const tx = db.transaction(ADMIN_STORE, 'readwrite');
-    const store = tx.objectStore(ADMIN_STORE);
-    const count = await store.count();
-    if (count === 0) {
-        const passwordHash = await sha256('google');
-        await store.add({
-            username: 'admin',
-            passwordHash,
-            name: 'Default Admin',
-            blockNumber: 'A-101',
-            signature: '',
-        });
-    }
-    await tx.done;
+    await connectToDb();
 }
 
-export async function verifyAdmin(password: string): Promise<boolean> {
+type AuthStatus = {
+    isSetup: boolean;
+    authMethod?: 'password' | 'pin';
+    username?: string;
+}
+
+export async function getAuthStatus(): Promise<AuthStatus> {
+    const db = await connectToDb();
+    const admin = await db.get(ADMIN_STORE, 1);
+    if (admin) {
+        return { isSetup: true, authMethod: admin.authMethod, username: admin.username };
+    }
+    return { isSetup: false };
+}
+
+type SetupDetails = {
+    authMethod: 'password';
+    username: string;
+    password: string;
+} | {
+    authMethod: 'pin';
+    pin: string;
+}
+
+export async function setupAdmin(details: SetupDetails) {
+    const db = await connectToDb();
+    let newAdmin: Admin;
+    if (details.authMethod === 'password') {
+        const passwordHash = await sha256(details.password);
+        newAdmin = {
+            id: 1,
+            authMethod: 'password',
+            username: details.username,
+            passwordHash,
+            name: 'Admin',
+            blockNumber: '',
+            signature: '',
+        };
+    } else {
+        const pinHash = await sha256(details.pin);
+        newAdmin = {
+            id: 1,
+            authMethod: 'pin',
+            passwordHash: pinHash,
+            name: 'Admin',
+            blockNumber: '',
+            signature: '',
+        }
+    }
+    await db.put(ADMIN_STORE, newAdmin);
+}
+
+export async function verifyPassword(username: string, password: string): Promise<boolean> {
+    const db = await connectToDb();
+    const admin = await db.get(ADMIN_STORE, 1);
+    if (!admin || admin.username !== username) return false;
+    const passwordHash = await sha256(password);
+    return passwordHash === admin.passwordHash;
+}
+
+export async function verifyPin(pin: string): Promise<boolean> {
     const db = await connectToDb();
     const admin = await db.get(ADMIN_STORE, 1);
     if (!admin) return false;
-    const passwordHash = await sha256(password);
-    return passwordHash === admin.passwordHash;
+    const pinHash = await sha256(pin);
+    return pinHash === admin.passwordHash;
 }
 
 export async function getAdmin(): Promise<Admin | undefined> {
@@ -67,12 +113,32 @@ export async function getAdmin(): Promise<Admin | undefined> {
     return await db.get(ADMIN_STORE, 1);
 }
 
-export async function updateAdmin(adminData: Admin) {
+export async function updateAdmin(adminData: Partial<Admin>) {
     const db = await connectToDb();
-    // Ensure we are updating the first admin record
-    const adminWithId = { ...adminData, id: 1 };
-    await db.put(ADMIN_STORE, adminWithId);
+    const currentAdmin = await getAdmin();
+    if (!currentAdmin) return;
+    const updatedAdmin = { ...currentAdmin, ...adminData, id: 1 };
+    await db.put(ADMIN_STORE, updatedAdmin);
 }
+
+export async function updatePassword(newPassword: string): Promise<void> {
+    const db = await connectToDb();
+    const admin = await getAdmin();
+    if (admin) {
+        admin.passwordHash = await sha256(newPassword);
+        await db.put(ADMIN_STORE, admin);
+    }
+}
+
+export async function updatePin(newPin: string): Promise<void> {
+    const db = await connectToDb();
+    const admin = await getAdmin();
+    if (admin) {
+        admin.passwordHash = await sha256(newPin);
+        await db.put(ADMIN_STORE, admin);
+    }
+}
+
 
 export async function addReceipt(receipt: Receipt) {
     const db = await connectToDb();

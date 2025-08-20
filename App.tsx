@@ -1,21 +1,38 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
-import { initDB, verifyAdmin } from './services/db';
+import { initDB, getAuthStatus } from './services/db';
 import type { Language } from './types';
 import { translations } from './constants';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSetup, setIsSetup] = useState<boolean>(false);
+  const [authMethod, setAuthMethod] = useState<'password' | 'pin' | null>(null);
+  const [username, setUsername] = useState<string | undefined>(undefined);
   const [language, setLanguage] = useState<Language>('en');
 
   const checkAuth = useCallback(async () => {
+    setIsLoading(true);
     try {
       await initDB();
+      const authStatus = await getAuthStatus();
+      setIsSetup(authStatus.isSetup);
+      if (authStatus.isSetup) {
+        setAuthMethod(authStatus.authMethod!);
+        setUsername(authStatus.username);
+      } else {
+        setAuthMethod(null);
+        setUsername(undefined);
+      }
+      
       const sessionAuth = sessionStorage.getItem('isAuthenticated');
-      if (sessionAuth === 'true') {
+      if (sessionAuth === 'true' && authStatus.isSetup) {
         setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
       }
     } catch (error) {
       console.error("Initialization failed:", error);
@@ -28,13 +45,11 @@ const App: React.FC = () => {
     checkAuth();
   }, [checkAuth]);
   
-  const handleLogin = async (password: string): Promise<boolean> => {
-    const success = await verifyAdmin(password);
-    if (success) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('isAuthenticated', 'true');
-    }
-    return success;
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    sessionStorage.setItem('isAuthenticated', 'true');
+    // If login was result of initial setup, re-run checkAuth to update state
+    checkAuth();
   };
 
   const handleLogout = () => {
@@ -53,7 +68,14 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       {!isAuthenticated ? (
-        <LoginPage onLogin={handleLogin} language={language} setLanguage={setLanguage} />
+        <LoginPage 
+            onLoginSuccess={handleLoginSuccess} 
+            language={language} 
+            setLanguage={setLanguage} 
+            isInitialSetup={!isSetup}
+            existingAuthMethod={authMethod}
+            existingUsername={username}
+        />
       ) : (
         <Dashboard onLogout={handleLogout} language={language} setLanguage={setLanguage} />
       )}
