@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Language, Admin } from '../types';
 import { translations } from '../constants';
@@ -45,6 +44,9 @@ const ProfileSettings: React.FC<{ language: Language }> = ({ language }) => {
             name: admin.name || '',
             blockNumber: admin.blockNumber || '',
             signature: signature || '',
+            societyName: admin.societyName || '',
+            societyAddress: admin.societyAddress || '',
+            societyRegNo: admin.societyRegNo || '',
         };
         await updateAdmin(profileData);
         setSignatureData(signature);
@@ -105,9 +107,27 @@ const ProfileSettings: React.FC<{ language: Language }> = ({ language }) => {
         <div className="space-y-6">
             <h2 className={`text-2xl font-bold text-gray-800 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.profileSettings as string}</h2>
             
-            {/* Profile Section */}
+            {/* Society & Profile Section */}
             <div className="p-6 bg-white rounded-lg shadow-md">
-                <h3 className={`text-xl font-semibold mb-4 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.adminProfile as string}</h3>
+                {/* Society Details */}
+                <h3 className={`text-xl font-semibold mb-4 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.societyDetails as string}</h3>
+                 <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2">
+                     <div className="md:col-span-2">
+                        <label className={`block text-sm font-medium text-gray-700 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.societyName as string}</label>
+                        <input type="text" value={admin.societyName || ''} onChange={e => setAdmin({...admin, societyName: e.target.value})} className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
+                    </div>
+                     <div>
+                        <label className={`block text-sm font-medium text-gray-700 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.societyAddress as string}</label>
+                        <input type="text" value={admin.societyAddress || ''} onChange={e => setAdmin({...admin, societyAddress: e.target.value})} className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
+                    </div>
+                     <div>
+                        <label className={`block text-sm font-medium text-gray-700 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.societyRegNo as string}</label>
+                        <input type="text" value={admin.societyRegNo || ''} onChange={e => setAdmin({...admin, societyRegNo: e.target.value})} className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
+                    </div>
+                 </div>
+
+                {/* Admin Profile Details */}
+                <h3 className={`text-xl font-semibold mb-4 border-t pt-4 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.adminProfile as string}</h3>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
                         <label className={`block text-sm font-medium text-gray-700 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.adminName as string}</label>

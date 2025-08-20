@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DashboardView from './DashboardView';
 import ReceiptsManager from './ReceiptsManager';
 import ExpenseCalculator from './ExpenseCalculator';
 import ProfileSettings from './ProfileSettings';
@@ -11,10 +12,10 @@ interface DashboardProps {
   setLanguage: (lang: Language) => void;
 }
 
-type Tab = 'receipts' | 'expenses' | 'profile';
+type Tab = 'dashboard' | 'receipts' | 'expenses' | 'profile';
 
 const Dashboard: React.FC<DashboardProps> = ({ onLogout, language, setLanguage }) => {
-  const [activeTab, setActiveTab] = useState<Tab>('receipts');
+  const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const t = translations[language];
 
   const toggleLanguage = () => {
@@ -23,6 +24,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, language, setLanguage }
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return <DashboardView language={language} activeTab={activeTab} />;
       case 'receipts':
         return <ReceiptsManager language={language} />;
       case 'expenses':
@@ -70,6 +73,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, language, setLanguage }
       <main className="container p-4 mx-auto sm:px-6 lg:px-8">
          <div className="border-b border-gray-200">
             <nav className="flex -mb-px space-x-6" aria-label="Tabs">
+               <button onClick={() => setActiveTab('dashboard')} className={getTabClass('dashboard')}>
+                {t.dashboard as string}
+              </button>
               <button onClick={() => setActiveTab('receipts')} className={getTabClass('receipts')}>
                 {t.receipts as string}
               </button>

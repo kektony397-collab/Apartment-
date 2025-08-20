@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Language, Receipt } from '../types';
 import { translations } from '../constants';
@@ -10,38 +9,40 @@ const ReceiptForm: React.FC<{ language: Language, onReceiptCreated: () => void }
     const [name, setName] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [amount, setAmount] = useState('');
+    const [maintenancePeriod, setMaintenancePeriod] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if(!name || !date || !amount) return;
         setIsSubmitting(true);
-        const newReceipt: Receipt = {
-            receiptNumber: `REC-${Date.now()}`,
+        
+        const createdReceipt = await addReceipt({
             name,
             date,
             amount: parseFloat(amount),
-        };
-        await addReceipt(newReceipt);
+            maintenancePeriod,
+        });
         
         setName('');
         setAmount('');
         setDate(new Date().toISOString().split('T')[0]);
+        setMaintenancePeriod('');
         
         alert(t.receiptCreated as string);
         onReceiptCreated();
         setIsSubmitting(false);
 
-        // Also generate PDF for this single receipt
-        await generateReceiptPDF(newReceipt, language);
+        await generateReceiptPDF(createdReceipt, language);
     };
 
     return (
         <div className="p-6 bg-white rounded-lg shadow-md">
             <h3 className={`text-xl font-semibold mb-4 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.newReceipt as string}</h3>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-5">
                 <input type="text" placeholder={t.recipientName as string} value={name} onChange={e => setName(e.target.value)} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
                 <input type="date" value={date} onChange={e => setDate(e.target.value)} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
+                <input type="month" value={maintenancePeriod} onChange={e => setMaintenancePeriod(e.target.value)} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" title={t.maintenancePeriod as string} />
                 <input type="number" placeholder={t.amount as string} value={amount} onChange={e => setAmount(e.target.value)} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
                 <button type="submit" disabled={isSubmitting} className={`w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-indigo-300 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.createReceipt as string}</button>
             </form>
@@ -92,6 +93,7 @@ const ReceiptsManager: React.FC<{ language: Language }> = ({ language }) => {
                                 <th className={`p-4 text-xs font-semibold tracking-wider text-gray-500 uppercase ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.receiptNumber as string}</th>
                                 <th className={`p-4 text-xs font-semibold tracking-wider text-gray-500 uppercase ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.recipientName as string}</th>
                                 <th className={`p-4 text-xs font-semibold tracking-wider text-gray-500 uppercase ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.date as string}</th>
+                                <th className={`p-4 text-xs font-semibold tracking-wider text-gray-500 uppercase ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.maintenancePeriod as string}</th>
                                 <th className={`p-4 text-xs font-semibold tracking-wider text-gray-500 uppercase ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.amount as string}</th>
                                 <th className={`p-4 text-xs font-semibold tracking-wider text-gray-500 uppercase ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.actions as string}</th>
                             </tr>
@@ -102,6 +104,7 @@ const ReceiptsManager: React.FC<{ language: Language }> = ({ language }) => {
                                     <td className="p-4 text-sm text-gray-900 whitespace-nowrap">{receipt.receiptNumber}</td>
                                     <td className="p-4 text-sm text-gray-900 whitespace-nowrap">{receipt.name}</td>
                                     <td className="p-4 text-sm text-gray-500 whitespace-nowrap">{receipt.date}</td>
+                                    <td className="p-4 text-sm text-gray-500 whitespace-nowrap">{receipt.maintenancePeriod}</td>
                                     <td className="p-4 text-sm font-medium text-gray-900 whitespace-nowrap">{receipt.amount.toFixed(2)}</td>
                                     <td className="p-4 text-sm whitespace-nowrap">
                                         <button onClick={() => generateReceiptPDF(receipt, language)} className={`text-indigo-600 hover:text-indigo-900 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.viewPDF as string}</button>
@@ -109,7 +112,7 @@ const ReceiptsManager: React.FC<{ language: Language }> = ({ language }) => {
                                 </tr>
                             )) : (
                                 <tr>
-                                    <td colSpan={5} className="p-4 text-center text-gray-500">{t.noReceipts as string}</td>
+                                    <td colSpan={6} className="p-4 text-center text-gray-500">{t.noReceipts as string}</td>
                                 </tr>
                             )}
                         </tbody>

@@ -1,4 +1,3 @@
-
 import type { Translation } from './types';
 
 export const translations: { [key: string]: Translation } = {
@@ -34,8 +33,16 @@ export const translations: { [key: string]: Translation } = {
     pinsDoNotMatch: "PINs do not match.",
     pinLoginTitle: "Enter PIN",
     incorrectPin: "Incorrect PIN.",
+    // Dashboard
+    totalReceipts: "Total Receipts",
+    totalExpenses: "Total Expenses",
+    netBalance: "Net Balance",
     // Profile
     adminProfile: "Admin Profile",
+    societyDetails: "Society Details",
+    societyName: "Society Name",
+    societyAddress: "Society Address",
+    societyRegNo: "Society Reg. No.",
     adminName: "Admin Name",
     blockNumber: "Block Number",
     signature: "Signature",
@@ -61,6 +68,7 @@ export const translations: { [key: string]: Translation } = {
     receiptNumber: "Receipt No.",
     recipientName: "Recipient Name",
     date: "Date",
+    maintenancePeriod: "Maintenance for",
     amount: "Amount",
     actions: "Actions",
     viewPDF: "View PDF",
@@ -75,7 +83,7 @@ export const translations: { [key: string]: Translation } = {
     pdfHeader4: "REG.NO Demo",
     // PDF Footer
     pdfFooter1: "This is only a digital soft copy.",
-    pdfFooter2: "Created By Yash K Pathak",
+    pdfFooter2: "Created By",
     // Expense Calculator
     expenseCalculator: "Expense Calculator",
     itemName: "Item Name",
@@ -85,6 +93,8 @@ export const translations: { [key: string]: Translation } = {
     addItem: "Add Item",
     grandTotal: "Grand Total",
     exportPDF: "Export (PDF)",
+    saveReport: "Save Report",
+    reportSaved: "Expense report saved!",
     expenseReport: "Expense Report",
   },
   gu: {
@@ -119,8 +129,16 @@ export const translations: { [key: string]: Translation } = {
     pinsDoNotMatch: "PIN મેળ ખાતા નથી.",
     pinLoginTitle: "PIN દાખલ કરો",
     incorrectPin: "ખોટો PIN.",
+    // Dashboard
+    totalReceipts: "કુલ રસીદો",
+    totalExpenses: "કુલ ખર્ચ",
+    netBalance: "ચોખ્ખી સિલક",
     // Profile
     adminProfile: "એડમિન પ્રોફાઇલ",
+    societyDetails: "સોસાયટીની વિગતો",
+    societyName: "સોસાયટીનું નામ",
+    societyAddress: "સોસાયટીનું સરનામું",
+    societyRegNo: "સોસાયટી રજી. નંબર",
     adminName: "એડમિનનું નામ",
     blockNumber: "બ્લોક નંબર",
     signature: "સહી",
@@ -146,6 +164,7 @@ export const translations: { [key: string]: Translation } = {
     receiptNumber: "રસીદ નં.",
     recipientName: "પ્રાપ્તકર્તાનું નામ",
     date: "તારીખ",
+    maintenancePeriod: "જાળવણી માટે",
     amount: "રકમ",
     actions: "ક્રિયાઓ",
     viewPDF: "PDF જુઓ",
@@ -160,7 +179,7 @@ export const translations: { [key: string]: Translation } = {
     pdfHeader4: "REG.NO ડેમો",
     // PDF Footer
     pdfFooter1: "આ ફક્ત ડિજિટલ સોફ્ટ કોપી છે.",
-    pdfFooter2: "યશ કે પાઠક દ્વારા બનાવેલ",
+    pdfFooter2: "દ્વારા બનાવેલ",
     // Expense Calculator
     expenseCalculator: "ખર્ચ કેલ્ક્યુલેટર",
     itemName: "વસ્તુનું નામ",
@@ -170,6 +189,8 @@ export const translations: { [key: string]: Translation } = {
     addItem: "વસ્તુ ઉમેરો",
     grandTotal: "મહાન કુલ",
     exportPDF: "નિકાસ કરો (PDF)",
+    saveReport: "રિપોર્ટ સાચવો",
+    reportSaved: "ખર્ચનો રિપોર્ટ સાચવ્યો!",
     expenseReport: "ખર્ચ અહેવાલ",
   },
 };

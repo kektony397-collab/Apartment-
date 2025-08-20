@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import type { Language, ExpenseItem } from '../types';
 import { translations } from '../constants';
 import { generateExpensePDF } from '../services/exportService';
+import { addExpenseReport } from '../services/db';
 
 const ExpenseCalculator: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language];
@@ -22,6 +22,19 @@ const ExpenseCalculator: React.FC<{ language: Language }> = ({ language }) => {
         setItemName('');
         setItemAmount('');
     };
+
+    const handleSaveReport = async () => {
+        if (items.length === 0) return;
+
+        await addExpenseReport({
+            date: new Date().toISOString().split('T')[0],
+            items,
+            total,
+        });
+
+        alert(t.reportSaved as string);
+        setItems([]);
+    }
 
     return (
         <div className="space-y-6">
@@ -49,9 +62,12 @@ const ExpenseCalculator: React.FC<{ language: Language }> = ({ language }) => {
             </div>
             
             <div className="p-6 bg-white rounded-lg shadow-md">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">{language === 'en' ? 'Items' : 'વસ્તુઓ'}</h3>
-                    <button onClick={() => generateExpensePDF(items, total, language)} className={`px-4 py-2 font-medium text-white bg-green-600 rounded-md hover:bg-green-700 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.exportPDF as string}</button>
+                <div className="flex flex-col items-stretch gap-4 mb-4 md:flex-row md:justify-between md:items-center">
+                    <h3 className="text-xl font-semibold">{language === 'en' ? 'Current Report Items' : 'વર્તમાન રિપોર્ટ વસ્તુઓ'}</h3>
+                    <div className="flex gap-2">
+                         <button onClick={handleSaveReport} disabled={items.length === 0} className={`px-4 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-300 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.saveReport as string}</button>
+                        <button onClick={() => generateExpensePDF(items, total, language)} disabled={items.length === 0} className={`px-4 py-2 font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:bg-green-300 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.exportPDF as string}</button>
+                    </div>
                 </div>
                  <div className="overflow-x-auto">
                     <table className="w-full text-left bg-white">
