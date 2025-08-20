@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Receipt Book Pro",
+  "description": "An offline-capable receipt book application for managing maintenance payments with bilingual support (Gujarati and English), and export options in PDF and Excel formats. All data is stored locally in your browser.",
+  "requestFramePermissions": []
+}
