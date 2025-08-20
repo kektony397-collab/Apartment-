@@ -2,20 +2,21 @@ import React, { useState, useEffect, useCallback } from 'react';
 import type { Language } from '../types';
 import { translations } from '../constants';
 import { getReceipts, getExpenseReports } from '../services/db';
+import { DATA_CHANGED_EVENT } from '../lib/events';
+
 
 interface DashboardViewProps {
     language: Language;
-    activeTab: string;
 }
 
 const StatCard: React.FC<{ title: string; value: string; color: string; language: Language }> = ({ title, value, color, language }) => (
     <div className={`p-6 bg-white rounded-lg shadow-md border-l-4 ${color}`}>
-        <h3 className={`text-lg font-semibold text-gray-600 ${language === 'gu' ? 'font-gujarati' : ''}`}>{title}</h3>
+        <h3 className={`text-lg font-semibold text-gray-600 ${language === 'gu' || language === 'hi' ? 'font-gujarati' : ''}`}>{title}</h3>
         <p className="text-3xl font-bold text-gray-900">{value}</p>
     </div>
 );
 
-const DashboardView: React.FC<DashboardViewProps> = ({ language, activeTab }) => {
+const DashboardView: React.FC<DashboardViewProps> = ({ language }) => {
     const t = translations[language];
     const [totalReceipts, setTotalReceipts] = useState(0);
     const [totalExpenses, setTotalExpenses] = useState(0);
@@ -35,10 +36,15 @@ const DashboardView: React.FC<DashboardViewProps> = ({ language, activeTab }) =>
     }, []);
 
     useEffect(() => {
-        if (activeTab === 'dashboard') {
-            fetchData();
-        }
-    }, [activeTab, fetchData]);
+        fetchData();
+        
+        const handleDataChange = () => fetchData();
+        window.addEventListener(DATA_CHANGED_EVENT, handleDataChange);
+        
+        return () => {
+            window.removeEventListener(DATA_CHANGED_EVENT, handleDataChange);
+        };
+    }, [fetchData]);
     
     const netBalance = totalReceipts - totalExpenses;
     
@@ -50,7 +56,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ language, activeTab }) =>
 
     return (
         <div className="space-y-6">
-             <h2 className={`text-2xl font-bold text-gray-800 ${language === 'gu' ? 'font-gujarati' : ''}`}>{t.dashboard as string}</h2>
+             <h2 className={`text-2xl font-bold text-gray-800 ${language === 'gu' || language === 'hi' ? 'font-gujarati' : ''}`}>{t.dashboard as string}</h2>
              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <StatCard title={t.totalReceipts as string} value={formatCurrency(totalReceipts)} color="border-green-500" language={language} />
                 <StatCard title={t.totalExpenses as string} value={formatCurrency(totalExpenses)} color="border-red-500" language={language} />

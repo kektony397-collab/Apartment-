@@ -32,7 +32,7 @@ export interface ExpenseReport {
     total: number;
 }
 
-export type Language = 'en' | 'gu';
+export type Language = 'en' | 'gu' | 'hi';
 
 export type Translation = {
     [key: string]: string | { [key: string]: string };

@@ -19,13 +19,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, language, setLanguage }
   const t = translations[language];
 
   const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'gu' : 'en');
+    if (language === 'en') {
+      setLanguage('gu');
+    } else if (language === 'gu') {
+      setLanguage('hi');
+    } else {
+      setLanguage('en');
+    }
   };
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardView language={language} activeTab={activeTab} />;
+        return <DashboardView language={language} />;
       case 'receipts':
         return <ReceiptsManager language={language} />;
       case 'expenses':
@@ -38,7 +44,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, language, setLanguage }
   };
 
   const getTabClass = (tabName: Tab) => {
-      const baseClass = `px-4 py-2 font-medium rounded-t-lg transition-colors duration-200 ${language === 'gu' ? 'font-gujarati' : ''}`;
+      const baseClass = `px-4 py-2 font-medium rounded-t-lg transition-colors duration-200 ${language === 'gu' || language === 'hi' ? 'font-gujarati' : ''}`;
       return activeTab === tabName
         ? `${baseClass} bg-white text-indigo-600`
         : `${baseClass} text-gray-500 hover:text-indigo-600 hover:bg-gray-50`;
@@ -49,19 +55,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, language, setLanguage }
       <header className="bg-white shadow-md">
         <div className="container px-4 py-4 mx-auto sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <h1 className={`text-2xl font-bold text-gray-900 ${language === 'gu' ? 'font-gujarati' : ''}`}>
+            <h1 className={`text-2xl font-bold text-gray-900 ${language === 'gu' || language === 'hi' ? 'font-gujarati' : ''}`}>
               {t.appName as string}
             </h1>
             <div className="flex items-center space-x-4">
               <button
                 onClick={toggleLanguage}
-                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className={`px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${language === 'gu' || language === 'hi' ? 'font-gujarati' : ''}`}
               >
-                {(language === 'en' ? t.toggleToGujarati : t.toggleToEnglish) as string}
+                {t.languageSwitcher as string}
               </button>
               <button
                 onClick={onLogout}
-                className={`px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${language === 'gu' ? 'font-gujarati' : ''}`}
+                className={`px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${language === 'gu' || language === 'hi' ? 'font-gujarati' : ''}`}
               >
                 {t.logout as string}
               </button>
